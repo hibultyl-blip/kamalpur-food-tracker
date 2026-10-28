@@ -28,11 +28,27 @@ class KamalpurFoodTracker(App):
         self.create_support()
         self.create_registration()
         self.create_dashboard()
-        self.create_account()
-
-        self.go("home")
+        self.create_account().     
+        self.go("home")        
         return self.manager
 
+    def customer_care(self, instance):
+        from kivy.utils import platform
+        if platform == "android":
+            from jnius import autoclass
+
+            Intent = autoclass("android.content.Intent")
+            Uri = autoclass("android.net.Uri")
+            PythonActivity = autoclass(
+                "org.kivy.android.PythonActivity"
+            )
+
+            intent = Intent(
+                Intent.ACTION_DIAL,
+                Uri.parse("tel:8798468426")
+            )
+
+        PythonActivity.mActivity.startActivity(intent)        
     def new_page(self, name, title):
         screen = Screen(name=name)
         layout = BoxLayout(
@@ -128,7 +144,11 @@ class KamalpurFoodTracker(App):
             layout, "Customer Support",
             lambda instance: self.go("support")
         )
-
+        self.add_button(
+            layout,
+            "Customer Care - Call 8798468426",
+            self.customer_care
+        )
         self.add_button(
             layout, "Restaurant Registration",
             lambda instance: self.go("registration")
