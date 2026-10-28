@@ -1,4 +1,6 @@
 [app]
+icon.filename = %(source.dir)s/icon.png
+presplash.filename = %(source.dir)s/icon.png
 title = Kamalpur Food Tracker
 package.name = kamalpurfoodtracker
 package.domain = in.sandipanfoody
