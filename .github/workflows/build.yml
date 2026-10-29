@@ -14,6 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Put logo in assets folder
+        run: |
+          mkdir -p assets
+          cp kamalpur_food_tracker_icon.png assets/icon.png
+      
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
