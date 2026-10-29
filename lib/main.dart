@@ -826,7 +826,7 @@ class _CartScreenState extends State<CartScreen> {
         builder: (c) => AlertDialog(
           title: const Text('Online payment'),
           content: const Text(
-              'Online payment will be connected with Razorpay after your business account is ready. For now this order is saved as a demo online payment.'),
+              'Online payment will be connected with Google pay after your business account is ready. For now this order is saved as a demo online payment.'),
           actions: [TextButton(onPressed: () => Navigator.pop(c), child: const Text('Continue'))],
         ),
       );
