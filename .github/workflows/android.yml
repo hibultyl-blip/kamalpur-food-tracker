@@ -45,9 +45,14 @@ jobs:
           exit ${PIPESTATUS[0]}
         timeout-minutes: 60
 
-      - name: Show error (last 80 lines)
+      - name: Show error
         if: failure()
-        run: tail -n 80 build.log
+        run: |
+          echo "=== Lines mentioning errors ==="
+          grep -n -i -E "error|failed|not found|no such file|exception|cannot|fatal" build.log | grep -v -i "warning" | tail -n 40
+          echo "=== Lines before the failure ==="
+          LN=$(grep -n "Command failed" build.log | head -1 | cut -d: -f1)
+          if [ -n "$LN" ]; then sed -n "$((LN-50)),${LN}p" build.log; else tail -n 200 build.log | head -n 120; fi
 
       - name: Upload build log
         if: failure()
