@@ -30,20 +30,31 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             git zip unzip \
-            autoconf libtool pkg-config \
-            zlib1g-dev libncurses5-dev \
-            libncursesw5-dev libtinfo6 \
-            cmake libffi-dev libssl-dev \
-            build-essential
+            autoconf automake libtool libltdl-dev pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 \
+            cmake libffi-dev libssl-dev build-essential
 
       - name: Install Buildozer
         run: |
-          python -m pip install --upgrade pip
-          pip install buildozer cython==0.29.36
+          python -m pip install --upgrade pip wheel
+          pip install buildozer cython==0.29.36 virtualenv
 
       - name: Build Android APK
-        run: buildozer android debug
+        run: |
+          buildozer -v android debug 2>&1 | tee build.log
+          exit ${PIPESTATUS[0]}
         timeout-minutes: 60
+
+      - name: Show error (last 80 lines)
+        if: failure()
+        run: tail -n 80 build.log
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
