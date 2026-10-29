@@ -1,0 +1,62 @@
+name: Build Kamalpur Food Tracker APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Android project files
+        run: |
+          cp pubspec.yaml /tmp/pubspec.yaml
+          cp lib/main.dart /tmp/main.dart
+          flutter create --org in.sandipanfoody --project-name kamalpur_food_tracker --platforms=android .
+          cp /tmp/pubspec.yaml pubspec.yaml
+          cp /tmp/main.dart lib/main.dart
+          rm -rf test
+
+      - name: Set app name and internet permission
+        run: |
+          sed -i 's/android:label="[^"]*"/android:label="Kamalpur Food Tracker"/' android/app/src/main/AndroidManifest.xml
+          sed -i 's|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <application|' android/app/src/main/AndroidManifest.xml
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Create app icon
+        run: dart run flutter_launcher_icons
+
+      - name: Build APK
+        run: flutter build apk --release 2>&1 | tee build.log
+        shell: bash
+
+      - name: Show errors
+        if: failure()
+        run: grep -n -i -E "error|failed|exception" build.log | tail -n 40
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kamalpur-food-tracker-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
